@@ -16,8 +16,6 @@ def apply_threshold(image, threshold_value, method_otsu):
     return result_image, int(otsu_thresh_val)
 
 def apply_unsharp_masking(image, radius, amount):
-    """Применяет увеличение резкости (Unsharp Masking)."""
-    # Радиус для размытия должен быть нечетным
     if radius % 2 == 0:
         radius += 1
 
@@ -28,30 +26,23 @@ def apply_unsharp_masking(image, radius, amount):
 
     return sharpened
 
-# --- Настройка интерфейса Streamlit ---
-
 st.set_page_config(layout="wide", page_title="Обработка изображений (Вариант 7)")
 
 st.title("Лабораторная работа №2: Обработка изображений")
 st.write("Глобальная пороговая обработка и увеличение резкости")
 
-# --- Боковая панель для управления ---
 
 st.sidebar.title("Панель управления")
 
-# 1. Загрузка файла
 st.sidebar.header("1. Загрузка изображения")
 uploaded_file = st.sidebar.file_uploader("Выберите изображение...", type=["jpg", "jpeg", "png", "bmp"])
 
-# Инициализация состояния для хранения изображений
 if 'original_image' not in st.session_state:
     st.session_state.original_image = None
     st.session_state.processed_image = None
     st.session_state.last_otsu_thresh = 127
 
-# Если файл загружен, обновляем состояние
 if uploaded_file is not None:
-    # Читаем байты и конвертируем в изображение OpenCV
     file_bytes = np.asarray(bytearray(uploaded_file.read()), dtype=np.uint8)
     # Важно: OpenCV читает в формате BGR. PIL/Streamlit работают с RGB.
     # Поэтому конвертируем сразу после чтения.
@@ -60,7 +51,6 @@ if uploaded_file is not None:
     st.session_state.processed_image = st.session_state.original_image.copy()
 
 
-# --- Основная область для отображения ---
 if st.session_state.original_image is not None:
     col1, col2 = st.columns(2)
 
@@ -68,9 +58,6 @@ if st.session_state.original_image is not None:
         st.header("Оригинал")
         st.image(st.session_state.original_image, use_column_width=True)
 
-    # --- Управление фильтрами в боковой панели ---
-
-    # 2. Пороговая обработка
     st.sidebar.header("2. Глобальная пороговая обработка")
     method = st.sidebar.radio("Метод:", ("Ручной", "Метод Оцу"))
 
@@ -87,12 +74,10 @@ if st.session_state.original_image is not None:
         st.session_state.processed_image = processed
         if is_otsu:
             st.session_state.last_otsu_thresh = otsu_val
-x
-    # Показываем, какой порог был выбран методом Оцу
+
     if is_otsu:
         st.sidebar.info(f"Вычисленный порог Оцу: **{st.session_state.last_otsu_thresh}**")
 
-    # 3. Увеличение резкости
     st.sidebar.header("3. Увеличение резкости")
     sharpen_amount = st.sidebar.slider("Сила эффекта", 0.1, 3.0, 1.5, 0.1)
     sharpen_radius = st.sidebar.slider("Радиус размытия", 1, 21, 5, 2)
@@ -105,12 +90,9 @@ x
         st.header("Результат")
         st.image(st.session_state.processed_image, use_column_width=True)
 
-        # 4. Сохранение результата
         try:
-            # Конвертируем изображение для сохранения
             result_pil = Image.fromarray(st.session_state.processed_image.astype('uint8'))
             buf = io.BytesIO()
-            # Пороговое изображение одноканальное, его нужно конвертировать
             if len(result_pil.getbands()) == 1:
                 result_pil = result_pil.convert("L")
             else:
