@@ -4,11 +4,6 @@ import colorsys
 import math
 
 class ColorConverterApp(tk.Tk):
-    """
-    Приложение для интерактивного преобразования цветов между моделями RGB, HLS и CMYK.
-    Нечетный вариант лабораторной работы.
-    """
-
     def __init__(self):
         super().__init__()
         self.title("Конвертер Цветов (RGB-HLS-CMYK)")
